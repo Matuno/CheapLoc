@@ -19,6 +19,7 @@ namespace CheapLoc
     {
         private static readonly Dictionary<string, Dictionary<string, LocEntry>> LocData = new();
         private static readonly ConditionalWeakTable<Assembly, string> AssemblyNames = new();
+        private static readonly Type RuntimeAssemblyType = typeof(Loc).Assembly.GetType();
 
         /// <summary>
         /// Set-up localization data for the calling assembly with the provided JSON structure.
@@ -273,7 +274,10 @@ namespace CheapLoc
             ExportLocalizableForAssembly(Assembly.GetCallingAssembly(), ignoreInvalidFunctions);
         }
 
+        // Custom Assembly overrides may expose mutable names.
         private static string GetAssemblyName(Assembly assembly) =>
-            AssemblyNames.GetValue(assembly, static value => value.GetName().Name);
+            assembly.GetType() == RuntimeAssemblyType
+                ? AssemblyNames.GetValue(assembly, static value => value.GetName().Name)
+                : assembly.GetName().Name;
     }
 }
