@@ -18,6 +18,7 @@ namespace CheapLoc
     public static class Loc
     {
         private static readonly Dictionary<string, Dictionary<string, LocEntry>> LocData = new();
+        private static readonly ConditionalWeakTable<Assembly, string> AssemblyNames = new();
 
         /// <summary>
         /// Set-up localization data for the calling assembly with the provided JSON structure.
@@ -272,6 +273,7 @@ namespace CheapLoc
             ExportLocalizableForAssembly(Assembly.GetCallingAssembly(), ignoreInvalidFunctions);
         }
 
-        private static string GetAssemblyName(Assembly assembly) => assembly.GetName().Name;
+        private static string GetAssemblyName(Assembly assembly) =>
+            AssemblyNames.GetValue(assembly, static value => value.GetName().Name);
     }
 }
